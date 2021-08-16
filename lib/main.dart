@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import './bloc/counter_bloc.dart';
+
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
@@ -25,18 +27,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  CounterBloc _counterBloc = new CounterBloc(initialCount: 0);
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  @override
+  void dispose() {
+    super.dispose();
 
-  void _decrementCounter() {
-    setState(() {
-      _counter--;
-    });
+    _counterBloc.dispose();
   }
 
   @override
@@ -52,7 +49,15 @@ class _MyHomePageState extends State<MyHomePage> {
             new Text(
               'You have pushed the button this many times:',
             ),
-            new Text('$_counter', style: Theme.of(context).textTheme.headline1),
+            new StreamBuilder(
+              stream: _counterBloc.counterObservable,
+              builder: (context, AsyncSnapshot<int> snapshot) {
+                return Text(
+                  '${snapshot.data}',
+                  style: Theme.of(context).textTheme.headline1,
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -62,13 +67,13 @@ class _MyHomePageState extends State<MyHomePage> {
           new Padding(
             padding: EdgeInsets.only(bottom: 10),
             child: new FloatingActionButton(
-              onPressed: _incrementCounter,
+              onPressed: _counterBloc.increment,
               tooltip: 'Increment',
               child: new Icon(Icons.add),
             ),
           ),
           new FloatingActionButton(
-            onPressed: _decrementCounter,
+            onPressed: _counterBloc.decrement,
             tooltip: 'Decrement',
             child: new Icon(Icons.remove),
           ),
